@@ -45,16 +45,7 @@ Add your Bandwidth account settings to `.env`:
 - ACCOUNT_ID
 - USERNAME
 - PASSWORD
-
-Add your Voice Application settings to `.env`:
-
-- VOICE_NUMBER (Bandwith phone number associated with the Voice Application in [E.164 format](https://www.bandwidth.com/glossary/e164/))
-- VOICE_APP_ID (the Voice Application ID from above)
-- VOICE_CALLBACK_URL (the publicly accessible URL you specified as the callback in the Voice Application. It should have `/callback` at the end of the URL)
-
-You can also customize the phone number that is displayed in the frontend by modifying the `frontend/.env` file:
-
-- `REACT_APP_PHONE_NUMBER` (display string for the dial in phone number)
+- PHONE_NUMBER
 
 ### Install dependencies and build
 
