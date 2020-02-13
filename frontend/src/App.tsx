@@ -56,7 +56,7 @@ const App: React.FC = () => {
     });
 
     // This event will fire any time a stream is no longer being sent to us
-    bandwidthRtc.onUnsubscribe(() => {
+    bandwidthRtc.onUnsubscribed(() => {
       console.log("no longer receiving audio from phone");
       setRemoteStream(undefined);
     });
