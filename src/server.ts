@@ -43,10 +43,10 @@ let sessionId: string;
 /////////////////////////////////////////////////////////////////////////////
 
 /**
- * The browser will hit this endpoint to get a conference and participant ID
+ * The browser will hit this endpoint to get a session and participant ID
  */
 app.get("/connectionInfo", async (req, res) => {
-  const { id, token } = await createParticipant('hello-world-browser');
+  const { id, token } = await createParticipant("hello-world-browser");
   res.send({
     token: token,
     voiceApplicationPhoneNumber: voiceApplicationPhoneNumber,
@@ -60,9 +60,9 @@ app.post("/incomingCall", async (req, res) => {
   const callId = req.body.callId;
   const from = req.body.from;
   console.log(`received incoming call ${callId} from ${from}`);
-  const { id, token } = await createParticipant('hello-world-phone');
+  const { id, token } = await createParticipant("hello-world-phone");
 
-  // This is the response payload that we will send back to the Voice API to transfer the call into the WebRTC conference
+  // This is the response payload that we will send back to the Voice API to transfer the call into the WebRTC session
   const bxml = `<?xml version="1.0" encoding="UTF-8" ?>
   <Response>
       ${await generateTransferBxml(token)}
@@ -74,8 +74,8 @@ app.post("/incomingCall", async (req, res) => {
 });
 
 app.post("/callStatus", async (req, res) => {
-  console.log('received status update', req.body);
-})
+  console.log("received status update", req.body);
+});
 
 // These two lines set up static file serving for the React frontend
 app.use(express.static(path.join(__dirname, "..", "frontend", "build")));
@@ -89,27 +89,24 @@ app.listen(port, () => console.log(`WebRTC Hello World listening on port ${port}
 // Bandwidth WebRTC Functions                                              //
 //                                                                         //
 // The following few functions make requests to the WebRTC Service to      //
-// create conferences and participants. They also help manage the app's    //
-// local state map of who all is in the conference                         //
+// create sessions and participants. They also help manage the app's       //
+// local state map of who all is in the session                            //
 //                                                                         //
 /////////////////////////////////////////////////////////////////////////////
 
 /**
- * Get a new or existing WebRTC conference ID
+ * Get a new or existing WebRTC session ID
  */
 const getSessionId = async (): Promise<string> => {
   // If we already have a valid session going, just re-use that one
   if (sessionId) {
     try {
-      await axios.get(
-        `${callControlUrl}/sessions/${sessionId}`,
-        {
-          auth: {
-            username: username,
-            password: password
-          }
-        }
-      );
+      await axios.get(`${callControlUrl}/sessions/${sessionId}`, {
+        auth: {
+          username: username,
+          password: password,
+        },
+      });
       return sessionId;
     } catch (e) {
       console.log(`session ${sessionId} is invalid`);
@@ -120,15 +117,15 @@ const getSessionId = async (): Promise<string> => {
   let response = await axios.post(
     `${callControlUrl}/sessions`,
     {
-      tag: 'hello-world'
+      tag: "hello-world",
     },
     {
       auth: {
         username: username,
-        password: password
-      }
+        password: password,
+      },
     }
-  )
+  );
   sessionId = response.data.id;
   console.log(`created new session ${sessionId}`);
   return sessionId;
@@ -144,15 +141,15 @@ const createParticipant = async (tag: string): Promise<Participant> => {
     {
       callbackUrl: "https://example.com",
       publishPermissions: ["AUDIO"],
-      tag: tag
+      tag: tag,
     },
     {
       auth: {
         username: username,
-        password: password
-      }
+        password: password,
+      },
     }
-  )
+  );
 
   const participant = createParticipantResponse.data.participant;
   const token = createParticipantResponse.data.token;
@@ -164,15 +161,15 @@ const createParticipant = async (tag: string): Promise<Participant> => {
   await axios.put(
     `${callControlUrl}/sessions/${sessionId}/participants/${participant.id}`,
     {
-      sessionId: sessionId
+      sessionId: sessionId,
     },
     {
       auth: {
         username: username,
-        password: password
-      }
+        password: password,
+      },
     }
-  )
+  );
 
   return {
     id: participantId,

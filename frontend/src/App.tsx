@@ -6,14 +6,14 @@ import BandwidthRtc, { RtcStream } from "@bandwidth/webrtc-browser";
 const bandwidthRtc = new BandwidthRtc();
 
 const App: React.FC = () => {
-  // We will use these state variables to hold our conference ID, participant ID, and phone number
+  // We will use these state variables to hold our device token and application phone number
   const [token, setToken] = useState<string>();
   const [voiceApplicationPhoneNumber, setVoiceApplicationPhoneNumber] = useState<string>();
 
   // This state variable holds the remote stream object - the audio from the phone
   const [remoteStream, setRemoteStream] = useState<RtcStream>();
 
-  // This effect connects to our server backend to get a conference and participant ID
+  // This effect connects to our server backend to get a device token
   // It will only run the first time this component renders
   useEffect(() => {
     fetch("/connectionInfo").then(async (response) => {
@@ -23,7 +23,7 @@ const App: React.FC = () => {
     });
   }, []);
 
-  // This effect will fire when the conference or participant IDs change
+  // This effect will fire when the token changes
   // It will connect a websocket to Bandwidth WebRTC, and start streaming the browser's mic
   useEffect(() => {
     if (token) {
