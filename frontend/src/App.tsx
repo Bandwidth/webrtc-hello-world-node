@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import "./App.css";
 
 import BandwidthRtc, { RtcStream } from "@bandwidth/webrtc-browser";
+require('log-timestamp');
+
 
 const bandwidthRtc = new BandwidthRtc();
 
@@ -9,6 +11,7 @@ const App: React.FC = () => {
   // We will use these state variables to hold our device token and application phone number
   const [token, setToken] = useState<string>();
   const [voiceApplicationPhoneNumber, setVoiceApplicationPhoneNumber] = useState<string>();
+  const [outboundPhoneNumber, setOutboundPhoneNumber] = useState<string>();
 
   // This state variable holds the remote stream object - the audio from the phone
   const [remoteStream, setRemoteStream] = useState<RtcStream>();
@@ -20,6 +23,7 @@ const App: React.FC = () => {
       const responseBody = await response.json();
       setToken(responseBody.token);
       setVoiceApplicationPhoneNumber(responseBody.voiceApplicationPhoneNumber);
+      setOutboundPhoneNumber(responseBody.outboundPhoneNumber);
     });
   }, []);
 
@@ -48,16 +52,28 @@ const App: React.FC = () => {
   useEffect(() => {
     // This event will fire any time a new stream is sent to us
     bandwidthRtc.onStreamAvailable((rtcStream: RtcStream) => {
-      console.log("receiving audio from phone!");
+      console.log("receiving audio!");
       setRemoteStream(rtcStream);
     });
 
     // This event will fire any time a stream is no longer being sent to us
     bandwidthRtc.onStreamUnavailable((endpointId: string) => {
-      console.log("no longer receiving audio from phone");
+      console.log("no longer receiving audio");
       setRemoteStream(undefined);
     });
   });
+
+  // Initiate a call to the outbound phone number listed
+  const callOutboundPhoneNumber = () => {
+    console.log(`calling ${outboundPhoneNumber}`);
+    fetch("/callPhone").then(async (response) => {
+      if (response.ok) {
+        console.log("Ringing...");
+      } else {
+        console.log("Something went wrong");
+      }
+    })
+  }
 
   return (
     <div className="App">
@@ -79,7 +95,15 @@ const App: React.FC = () => {
             Hooray! You're connected!
           </div>
         ) : (
-          <div>Dial {voiceApplicationPhoneNumber || "your Voice API phone number"} to chat with this browser</div>
+          <div>
+            <div>Dial {voiceApplicationPhoneNumber || "your Voice API phone number"} to chat with this browser</div>
+            {outboundPhoneNumber &&
+              <div style={{display: "flex", justifyContent: "center", alignItems: "center"}}>
+                <span>or click to call {outboundPhoneNumber}</span>
+                <button style={{height: "30px", marginLeft: "10px"}} onClick={callOutboundPhoneNumber}>CALL</button>
+              </div>
+            }
+          </div>
         )}
       </header>
     </div>
