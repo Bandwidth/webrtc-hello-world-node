@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import "./App.css";
 
 import BandwidthRtc, { RtcStream } from "@bandwidth/webrtc-browser";
-require('log-timestamp');
 
 
 const bandwidthRtc = new BandwidthRtc();
